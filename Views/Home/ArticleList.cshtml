@@ -1,0 +1,16 @@
+﻿
+@{
+    Layout = null;
+}
+@model List<ArticleViewModel>;
+
+<form enctype="multipart/form-data" asp-action="ArticleDetails" asp-controller="Home"  method="post">
+<ul>
+    @foreach (var item in Model)
+    {
+        <li>
+        @Html.ActionLink(item.Name,"ArticleDetails", new{ id=item.Id});
+    </li>
+    }
+</ul>
+</form>

@@ -1,0 +1,19 @@
+﻿@{
+     Layout = null;
+}
+@model List<CategoryViewModel>
+
+<form enctype="multipart/form-data" asp-action="AddNewArticle" asp-controller="Admin"  method="post">
+<input name ="Name" type="text" value="Name" />
+<input name="ShortDescription" type="text" value="ShortDescription" />
+<textarea name="Description" cols="40" rows="5">Description</textarea>
+<input type="submit" value="Добавить"  />
+<br />
+<select name="CategoryId">
+    @foreach(var item in Model)
+         {  <option value = "@item.Id" >
+              @item.Name
+           </option>
+        }
+    </select>
+</form>

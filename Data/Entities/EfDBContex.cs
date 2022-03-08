@@ -6,7 +6,7 @@ namespace TEST.Data.Entities
     public class EfDBContex : DbContext
     {
         public DbSet<Article> Articles  { get; set; }
-        public DbSet<Category> Сategories { get; set; }
+        public DbSet<Category> Categories { get; set; }
         public DbSet<Tag> Tags { get; set; }
 
 

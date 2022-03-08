@@ -1,0 +1,29 @@
+﻿@{
+    Layout = null;
+}
+@model (List<ArticleViewModel>, List<CategoryViewModel>)
+
+<ul>
+    @foreach (var item in Model.Item1)
+    {
+       <li>
+         @Html.ActionLink(item.Name,"ArticleDetailsUpdate", new{ id=item.Id})
+    </li>
+    }   
+</ul>
+
+    <ul>
+    @foreach (var item in Model.Item2)
+    {
+       <li>
+         @Html.ActionLink(item.Name,"MyArticlesSortByCategory", new{ id=item.Id})
+    </li>
+    }   
+</ul>
+<input type="button" value="Сброс" onclick="@("window.location.href='" + @Url.Action("MyArticles", "Admin") + "'");"/>
+
+<form enctype="multipart/form-data" asp-action="MyArticlesSortByDate" asp-controller="Admin"  method="post">
+<input type="date" name="DateStart" />
+<input type="date" name="DateEnd"/>
+<input type="submit" value="Фильтр по дате"/>
+</form>

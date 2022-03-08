@@ -1,0 +1,21 @@
+﻿@{
+    Layout = null;
+}
+@model ArticleUpdateModel
+
+<form enctype="multipart/form-data" asp-action="MyArticlesUpdate" asp-controller="Admin"  method="post">
+<input name ="Name" type="text" value="@Model.Article.Name" />
+<input name="ShortDescription" type="text" value="@Model.Article.ShortDescription" />
+<textarea name="Description" cols="40" rows="5">@Model.Article.Description</textarea>
+<input type="text" name="Id" value="@Model.Article.Id"/>
+<input type="submit" value="Обновить"  />
+<br />
+<select name="CategoryId">
+   @foreach(var item in Model.Categores)
+         {  
+            @: <option value = "@item.Id" @((item.Id==Model.Article.CategoryId)? "selected":"") >
+              @item.Name
+            @:</option>
+        }
+    </select>
+</form>

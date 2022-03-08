@@ -1,0 +1,13 @@
+﻿
+@{
+    Layout = null;
+}
+@model List<CategoryViewModel>
+<ul>
+    @foreach (var item in Model)
+    {
+       <li>
+         @Html.ActionLink(item.Name,"CategoryDetailsUpdate", new{ id=item.Id})
+    </li>
+    }   
+</ul>

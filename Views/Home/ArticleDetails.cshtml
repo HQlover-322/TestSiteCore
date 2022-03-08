@@ -1,0 +1,8 @@
+﻿@{
+    Layout = null;
+}
+@model ArticleViewModel
+
+<input name ="Name" type="text" value=@Model.Name />
+<input name="ShortDescription" type="text" value=@Model.ShortDescription />
+<textarea name="Description" cols="40" rows="5">@Model.Description</textarea>
