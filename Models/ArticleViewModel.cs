@@ -1,4 +1,6 @@
-﻿namespace TEST.Models
+﻿using TEST.Data.Entities;
+
+namespace TEST.Models
 {
     public class ArticleViewModel
     {
@@ -8,7 +10,9 @@
         public string Description { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
-        //public File MyProperty { get; set; }
+        public IFormFile HeroImage { get; set; }
+        public string HeroImagePath { get; set; }
         public Guid CategoryId { get; set; }
+        public List<TagViewModel> Tags { get; set; }
     }
 }

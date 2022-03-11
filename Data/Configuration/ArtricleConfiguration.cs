@@ -14,6 +14,7 @@ namespace TEST.Data.Configuration
             builder.Property(x => x.UpdatedAt).HasDefaultValueSql("getdate()");
             builder.HasIndex(x=>x.CreatedAt);
             builder.HasIndex(x=>x.UpdatedAt);
+            builder.HasOne(x=>x.HeroImage).WithOne(x=>x.Article).HasForeignKey<HeroImage>(x=>x.ArticleId);
         }
     }
 }

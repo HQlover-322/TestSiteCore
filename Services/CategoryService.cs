@@ -51,15 +51,24 @@ namespace TEST.Services
         }
         public async Task<CategoryViewModel> GetCategoryById(Guid id)
         {
-            var categories = await dbContex.Categories.AsNoTracking().ToListAsync();
-            return categories.Select(x => new CategoryViewModel()
+            var category = await dbContex.Categories.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+            return new CategoryViewModel()
             {
-                Id = x.Id,
-                Name = x.Name,
-                Description = x.Description,
-                CreatedAt = x.CreatedAt,
-                UpdatedAt = x.UpdatedAt
-            }).FirstOrDefault(x => x.Id == id);
+                Id = category.Id,
+                Name = category.Name,
+                Description = category.Description,
+                CreatedAt = category.CreatedAt,
+                UpdatedAt = category.UpdatedAt
+            };
+        }
+        public async Task CategoryRemove(Guid id)
+        {
+            using (dbContex)
+            {
+                var item = await dbContex.Categories.FindAsync(id);
+                dbContex.Remove(item);
+                dbContex.SaveChanges();
+            }
         }
     }
 }

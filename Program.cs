@@ -1,19 +1,22 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TEST.Data.Entities;
 using TEST.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddTransient<CategoryService>();
 builder.Services.AddTransient<ArticleService>();
 builder.Services.AddTransient<TagService>();
+builder.Services.AddTransient<HeroImageService>();
 
 ConfigurationManager configuration = builder.Configuration;
 builder.Services.AddDbContext<EfDBContex>(option => option.UseSqlServer(configuration.GetConnectionString("DefaultConnection"),
     x => x.MigrationsAssembly(typeof(EfDBContex).Assembly.FullName)
     ));
+builder.Services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<EfDBContex>();
+
 
 var app = builder.Build();
 
@@ -29,7 +32,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

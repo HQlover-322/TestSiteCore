@@ -1,5 +1,5 @@
 ﻿@{
-    Layout = null;
+  
 }
 @model (List<ArticleViewModel>, List<CategoryViewModel>)
 
@@ -8,6 +8,7 @@
     {
        <li>
          @Html.ActionLink(item.Name,"ArticleDetailsUpdate", new{ id=item.Id})
+         <img src="@item.HeroImagePath" />
     </li>
     }   
 </ul>

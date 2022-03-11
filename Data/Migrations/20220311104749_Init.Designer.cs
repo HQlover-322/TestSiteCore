@@ -12,7 +12,7 @@ using TEST.Data.Entities;
 namespace TEST.Migrations
 {
     [DbContext(typeof(EfDBContex))]
-    [Migration("20220303143627_Init")]
+    [Migration("20220311104749_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -57,6 +57,9 @@ namespace TEST.Migrations
                         .IsRequired()
                         .HasMaxLength(1024)
                         .HasColumnType("nvarchar(1024)");
+
+                    b.Property<Guid?>("HeroImageId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -104,7 +107,36 @@ namespace TEST.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Сategories");
+                    b.ToTable("Categories");
+                });
+
+            modelBuilder.Entity("TEST.Data.Entities.HeroImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ArticleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Path")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ArticleId")
+                        .IsUnique();
+
+                    b.ToTable("HeroImage");
                 });
 
             modelBuilder.Entity("TEST.Data.Entities.Tag", b =>
@@ -153,6 +185,22 @@ namespace TEST.Migrations
                         .IsRequired();
 
                     b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("TEST.Data.Entities.HeroImage", b =>
+                {
+                    b.HasOne("TEST.Data.Entities.Article", "Article")
+                        .WithOne("HeroImage")
+                        .HasForeignKey("TEST.Data.Entities.HeroImage", "ArticleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Article");
+                });
+
+            modelBuilder.Entity("TEST.Data.Entities.Article", b =>
+                {
+                    b.Navigation("HeroImage");
                 });
 
             modelBuilder.Entity("TEST.Data.Entities.Category", b =>

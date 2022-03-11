@@ -9,16 +9,15 @@ namespace TEST.Services
     {
         private readonly EfDBContex dbContex;
         private readonly CategoryService categoryService;
+        private readonly HeroImage  _heroImage;
 
         public ArticleService(EfDBContex dbContex, CategoryService categoryService)
         {
             this.dbContex = dbContex;
             this.categoryService = categoryService;
         }
-        public async Task AddNewArticle(ArticleViewModel data)
+        public async Task<Article> AddNewArticle(ArticleViewModel data)
         {
-            using (dbContex)
-            {
                 var item = new Data.Entities.Article()
                 {
                     Name = data.Name,
@@ -28,11 +27,12 @@ namespace TEST.Services
                 };
                 dbContex.Articles.Add(item);
                 await dbContex.SaveChangesAsync();
-            }
+            return item;
+
         }
         public async Task<List<ArticleViewModel>> GetArticles()
         {
-               var articles = await dbContex.Articles.AsNoTracking().ToListAsync();
+            var articles = await dbContex.Articles.Include(x=>x.HeroImage).ToListAsync();
             return articles.Select(x => new ArticleViewModel()
             {
                 Id = x.Id,
@@ -41,34 +41,45 @@ namespace TEST.Services
                 Description = x.Description,
                 CategoryId = x.CategoryId,
                 CreatedAt = x.CreatedAt,
-                UpdatedAt = x.UpdatedAt
-            }).ToList();     
+                UpdatedAt = x.UpdatedAt,
+                HeroImagePath=x.HeroImage?.Path
+            }).ToList();
         }
         public async Task<ArticleViewModel> GetArticleById(Guid id)
         {
-            var articles = await dbContex.Articles.AsNoTracking().ToListAsync();
-            return articles.Select(x => new ArticleViewModel()
+            var article = await dbContex.Articles.Include(x => x.Tags).FirstOrDefaultAsync(x => x.Id == id);
+            return new ArticleViewModel()
             {
-                Id = x.Id,
-                Name = x.Name,
-                ShortDescription = x.ShortDescription,
-                Description = x.Description,
-                CategoryId = x.CategoryId,
-                CreatedAt= x.CreatedAt,
-                UpdatedAt= x.UpdatedAt
-            }).FirstOrDefault(x=>x.Id==id);
-            }
-        public async Task UpdateArticle (ArticleViewModel data)
+                Id = article.Id,
+                Name = article.Name,
+                ShortDescription = article.ShortDescription,
+                Description = article.Description,
+                CategoryId = article.CategoryId,
+                CreatedAt = article.CreatedAt,
+                Tags = article.Tags.Select(x => new TagViewModel() { Id = x.Id, Name = x.Name }).ToList(),
+                UpdatedAt = article.UpdatedAt
+            };
+        }
+        public async Task UpdateArticle(ArticleViewModel data, Guid[] Tags)
         {
-            var item = await dbContex.Articles.FindAsync(data.Id);
-            if(item is not null)
+            var item = await dbContex.Articles.Include(x => x.Tags).FirstOrDefaultAsync(x => x.Id == data.Id);
+            if (item is not null)
             {
-                item.Name=data.Name;
-                item.ShortDescription=data.ShortDescription;
-                item.Description=data.Description;
-                item.CategoryId=data.CategoryId;
-                item.UpdatedAt=DateTime.Now;
+                var tags = dbContex.Tags.Where(x => Tags.Contains(x.Id));
+                item.Name = data.Name;
+                item.ShortDescription = data.ShortDescription;
+                item.Description = data.Description;
+                item.CategoryId = data.CategoryId;
+                item.UpdatedAt = DateTime.Now;
+
+                foreach (var existTag in item.Tags)
+                    if (!Tags.Contains(existTag.Id))
+                        item.Tags.Remove(existTag);
+
+                foreach (var tag in tags)
+                    item.Tags.Add(tag);
             }
+
             dbContex.Update(item);
             dbContex.SaveChanges();
         }
@@ -85,6 +96,15 @@ namespace TEST.Services
                 CreatedAt = x.CreatedAt,
                 UpdatedAt = x.UpdatedAt
             }).ToList();
+        }
+        public async Task ArticleRemove(Guid id)
+        {
+            using(dbContex)
+            {
+                var item = await dbContex.Articles.FindAsync(id);
+                dbContex.Remove(item);
+                dbContex.SaveChanges();
+            }
         }
     }
 }

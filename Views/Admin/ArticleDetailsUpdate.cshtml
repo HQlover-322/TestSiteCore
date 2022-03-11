@@ -1,21 +1,31 @@
 ﻿@{
     Layout = null;
 }
-@model ArticleUpdateModel
+@model ArticleViewModel
 
 <form enctype="multipart/form-data" asp-action="MyArticlesUpdate" asp-controller="Admin"  method="post">
-<input name ="Name" type="text" value="@Model.Article.Name" />
-<input name="ShortDescription" type="text" value="@Model.Article.ShortDescription" />
-<textarea name="Description" cols="40" rows="5">@Model.Article.Description</textarea>
-<input type="text" name="Id" value="@Model.Article.Id"/>
+<input name ="Name" type="text" value="@Model.Name" />
+<input name="ShortDescription" type="text" value="@Model.ShortDescription" />
+<textarea name="Description" cols="40" rows="5">@Model.Description</textarea>
+<input type="hidden" name="Id" value="@Model.Id"/>
 <input type="submit" value="Обновить"  />
 <br />
 <select name="CategoryId">
-   @foreach(var item in Model.Categores)
+   @foreach(var item in ViewBag.Categores)
          {  
-            @: <option value = "@item.Id" @((item.Id==Model.Article.CategoryId)? "selected":"") >
+            @:<option value = "@item.Id" @((item.Id==Model.CategoryId)? "selected":"") >
               @item.Name
             @:</option>
         }
     </select>
+    <br />
+    <ul>
+@foreach (var tag in ViewBag.Tags)
+{
+<li>
+<label>@tag.Name</label><input type ="checkbox" name="Tags" value="@tag.Id" @((Model.Tags is not null && Model.Tags.Any(x=>x.Id==tag.Id))? "checked":"") />
+</li>
+}
+</ul>
 </form>
+@Html.ActionLink("Delete Article","MyArticleRemove", new{ id=Model.Id})
