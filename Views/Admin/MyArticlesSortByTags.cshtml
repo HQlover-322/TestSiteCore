@@ -10,24 +10,17 @@
          @Html.ActionLink(item.Name,"ArticleDetailsUpdate", new{ id=item.Id})
          <img src="@item.HeroImagePath" class="img-thumbnail" height=375 width=375/>
     </li>
-    }   
+    }
+
     @if (Model.Item1.HasPreviousPage)
 {
-    <a asp-action=@ViewBag.Action
-       asp-route-CurrentPage="@(Model.Item1.CurrentPage - 1)"
-       class="btn btn-outline-dark">
-            <i class="glyphicon glyphicon-chevron-left"></i>
-        Назад
-    </a>
+     @Html.ActionLink("Назад","MyArticlesSortByTags", new{ CurrentPage=Model.Item1.CurrentPage - 1, tags=ViewBag.SelectedTags},
+     new {@class="btn btn-outline-dark"})
 }
 @if (Model.Item1.HasNextPage)
 {
-    <a asp-action=@ViewBag.Action
-       asp-route-CurrentPage="@(Model.Item1.CurrentPage + 1)"
-       class="btn btn-outline-dark">
-        Вперед
-            <i class="glyphicon glyphicon-chevron-right"></i>
-    </a>
+      @Html.ActionLink("Вперед","MyArticlesSortByTags", new{ CurrentPage=Model.Item1.CurrentPage + 1, tags=ViewBag.SelectedTags},
+     new {@class="btn btn-outline-dark"})
 }
 </ul>
 <label>Доступные категории</label>
@@ -47,7 +40,7 @@
 <input class="btn btn-success" type="submit" value="Фильтр по дате"/>
 </form>
 <form enctype="multipart/form-data" asp-action="MyArticlesSortByTags" asp-controller="Admin"  method="post">
- <input type="hidden" name="PageSize" value=@Model.Item1.PageSize/>
+    <input type="hidden" name="PageSize" value=@Model.Item1.PageSize/>
 <input type="hidden" name="CurrentPage" value=@Model.Item1.CurrentPage/>
 <label>Доступные Теги</label>
     <ul>

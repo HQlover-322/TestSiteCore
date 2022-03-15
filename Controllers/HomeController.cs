@@ -23,11 +23,21 @@ public class HomeController : Controller
 
     public IActionResult Privacy()
     {
+        throw new Exception();
         return View();
+
     }
-    public async Task<IActionResult> ArticleList()
+    public async Task<IActionResult> ArticleList(PageConfig config)
     {
-        return View(await _articleService.GetArticles());
+        PageViewModel<ArticleViewModel> pageViewModel = new PageViewModel<ArticleViewModel>()
+        {
+            CurrentPage = config.CurrentPage,
+            Items = await _articleService.GetArticles(config),
+            PageSize = config.PageSize,
+            TotalPages = await _articleService.GetCount() / config.PageSize
+        };
+
+        return View(pageViewModel);
     }
     public async Task<IActionResult> ArticleDetails(Guid id)
     {

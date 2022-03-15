@@ -35,6 +35,22 @@ namespace TEST.Services
                 UpdatedAt = x.UpdatedAt
             }).ToList();
         }
+        public async Task<List<TagViewModel>> GetTags(PageConfig config)
+        {
+            var articles = await dbContex.Tags
+                .Skip((config.CurrentPage - 1) * config.PageSize)
+                .Take(config.PageSize)
+                .AsNoTracking()
+                .ToListAsync();
+            return articles.Select(x => new TagViewModel()
+            {
+                Id = x.Id,
+                Name = x.Name,
+                CreatedAt = x.CreatedAt,
+                UpdatedAt = x.UpdatedAt
+            }).ToList();
+        }
+        
         public async Task TagRemove(Guid id)
         {
             using (dbContex)
@@ -43,6 +59,10 @@ namespace TEST.Services
                 dbContex.Remove(item);
                 dbContex.SaveChanges();
             }
+        }
+        public async Task<int> GetCount()
+        {
+            return await dbContex.Tags.CountAsync();
         }
     }
 }

@@ -23,9 +23,18 @@ namespace TEST.Controllers
             _heroImageService = heroImageService;
         }
         #region Article
-        public async Task<IActionResult> MyArticles()
+        public async Task<IActionResult> MyArticles(PageConfig config)
         {
-            (List<ArticleViewModel>, List<CategoryViewModel>) Models = (await _articleService.GetArticles(), await _categoryService.GetCategores());
+            PageViewModel<ArticleViewModel> pageViewModel = new PageViewModel<ArticleViewModel>()
+            {
+                CurrentPage = config.CurrentPage,
+                Items = await _articleService.GetArticles(config),
+                PageSize = config.PageSize,
+                TotalPages = await _articleService.GetCount() / config.PageSize
+            };
+            (PageViewModel<ArticleViewModel>, List<CategoryViewModel>) Models = (pageViewModel, await _categoryService.GetCategores());
+            ViewBag.Action = nameof(MyArticles);
+            ViewBag.Tags = await _tagService.GetTags();
             return View(Models);
         }
         public  async Task<IActionResult> AddNewArticle()
@@ -49,26 +58,64 @@ namespace TEST.Controllers
         }
         public async Task<IActionResult> MyArticlesUpdate(ArticleViewModel model, Guid[] Tags)
         {
-            await _articleService.UpdateArticle(model,Tags);
+            var article = await _articleService.UpdateArticle(model,Tags);
+            if (model.HeroImage is not null)
+                await _heroImageService.AddNewImage(model.HeroImage, article);
             return RedirectToAction(nameof(MyArticles));
         }
-        public async Task<IActionResult> MyArticlesSortByCategory(Guid id)
+        public async Task<IActionResult> MyArticlesSortByCategory(Guid id,PageConfig config)
         {
-            (List<ArticleViewModel>, List<CategoryViewModel>) Models = (await _articleService.GetNewArticleByPredicate(x => x.CategoryId == id), await _categoryService.GetCategores());
-            return View("MyArticles", Models);
+            PageViewModel<ArticleViewModel> pageViewModel = new PageViewModel<ArticleViewModel>()
+            {
+                CurrentPage = config.CurrentPage,
+                Items = await _articleService.GetNewArticleByPredicate(x => x.CategoryId == id,config),
+                PageSize = config.PageSize,
+                TotalPages = await _articleService.GetCount() / config.PageSize
+            };
+            (PageViewModel<ArticleViewModel>, List<CategoryViewModel>) Models = (pageViewModel, await _categoryService.GetCategores());
+            ViewBag.Action = nameof(MyArticlesSortByCategory);
+            ViewBag.Tags = await _tagService.GetTags();
+            return View(Models);
         }
-        public async Task<IActionResult> MyArticlesSortByDate(DateTime DateStart, DateTime DateEnd)
+        public async Task<IActionResult> MyArticlesSortByTags(Guid[] tags, PageConfig config)
         {
-            (List<ArticleViewModel>, List<CategoryViewModel>) Models = (default,await _categoryService.GetCategores());
+            PageViewModel<ArticleViewModel> pageViewModel = new PageViewModel<ArticleViewModel>()
+            {
+                CurrentPage = config.CurrentPage,
+                Items = await _articleService.GetNewArticleByPredicate(x=>x.Tags.Any(y=>tags.Contains(y.Id)), config),
+                PageSize = config.PageSize,
+                TotalPages = await _articleService.GetCount() / config.PageSize
+            };
+            (PageViewModel<ArticleViewModel>, List<CategoryViewModel>) Models = (pageViewModel, await _categoryService.GetCategores());
+            ViewBag.Action = nameof(MyArticlesSortByTags);
+            ViewBag.Tags = await _tagService.GetTags();
+            ViewBag.SelectedTags = tags;
+            return View(Models);
+        }
+        public async Task<IActionResult> MyArticlesSortByDate(DateTime DateStart, DateTime DateEnd, PageConfig config)
+        {
+            PageViewModel<ArticleViewModel> pageViewModel = new PageViewModel<ArticleViewModel>()
+            {
+                CurrentPage = config.CurrentPage,
+                PageSize = config.PageSize,
+                TotalPages = await _articleService.GetCount() / config.PageSize
+            };
+            (PageViewModel<ArticleViewModel>, List<CategoryViewModel>) Models = (pageViewModel, await _categoryService.GetCategores());
             if (DateEnd.Equals(default(DateTime)))
             {
-                Models.Item1= await _articleService.GetNewArticleByPredicate(x => x.CreatedAt.Date.Equals(DateStart));
+                Models.Item1.Items= await _articleService.GetNewArticleByPredicate(x => x.CreatedAt.Date.Equals(DateStart),config);
             }
             else
             {
-                Models.Item1 = await _articleService.GetNewArticleByPredicate(x => x.CreatedAt.Date >= DateStart && x.CreatedAt.Date <= DateEnd); 
+                Models.Item1.Items = await _articleService.GetNewArticleByPredicate(x => x.CreatedAt.Date >= DateStart && x.CreatedAt.Date <= DateEnd,config); 
             }
-            return View("MyArticles", Models);
+            if(DateStart!=default)
+            ViewBag.DateStart = DateStart.ToString("yyyy-MM-dd") ;
+            if (DateEnd != default)
+                ViewBag.DateEnd = DateEnd.ToString("yyyy-MM-dd");
+            ViewBag.Tags = await _tagService.GetTags();
+            ViewBag.Action = nameof(MyArticlesSortByDate);
+            return View(Models);
         }
         public async Task<IActionResult> MyArticleRemove(Guid id)
         {
@@ -79,9 +126,16 @@ namespace TEST.Controllers
         #endregion
 
         #region Category
-        public async Task<IActionResult> Category()
+        public async Task<IActionResult> Category(PageConfig config)
         {
-            return View(await _categoryService.GetCategores());
+            PageViewModel<CategoryViewModel> pageViewModel = new PageViewModel<CategoryViewModel>()
+            {
+                CurrentPage = config.CurrentPage,
+                Items = await _categoryService.GetCategores(config),
+                PageSize = config.PageSize,
+                TotalPages = await _categoryService.GetCount() / config.PageSize
+            };
+            return View(pageViewModel);
         }
         public IActionResult AddNewCategory()
         {
@@ -108,10 +162,20 @@ namespace TEST.Controllers
             await _categoryService.CategoryRemove(id);
             return RedirectToAction(nameof(Category));
         }
-        //Удаление каскадное, пизда
         #endregion
 
         #region Tags
+        public async Task<IActionResult> Tags(PageConfig config)
+        {
+            PageViewModel<TagViewModel> pageViewModel = new PageViewModel<TagViewModel>()
+            {
+                CurrentPage = config.CurrentPage,
+                Items = await _tagService.GetTags(config),
+                PageSize = config.PageSize,
+                TotalPages = await _tagService.GetCount() / config.PageSize
+            };
+            return View(pageViewModel);
+        }
         public IActionResult AddNewTag()
         {
             return View();
@@ -121,6 +185,11 @@ namespace TEST.Controllers
         {
             await _tagService.AddNewTag(model);
             return View();
+        }
+        public async Task<IActionResult> TagRemove(Guid id)
+        {
+            await _tagService.TagRemove(id);
+            return RedirectToAction(nameof(Tags));
         }
 
         #endregion

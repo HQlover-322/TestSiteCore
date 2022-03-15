@@ -16,7 +16,7 @@
     <a asp-action=@ViewBag.Action
        asp-route-CurrentPage="@(Model.Item1.CurrentPage - 1)"
        class="btn btn-outline-dark">
-            <i class="glyphicon glyphicon-chevron-left"></i>
+        <i class="glyphicon glyphicon-chevron-left"></i>
         Назад
     </a>
 }
@@ -26,7 +26,7 @@
        asp-route-CurrentPage="@(Model.Item1.CurrentPage + 1)"
        class="btn btn-outline-dark">
         Вперед
-            <i class="glyphicon glyphicon-chevron-right"></i>
+        <i class="glyphicon glyphicon-chevron-right"></i>
     </a>
 }
 </ul>
@@ -35,7 +35,7 @@
     @foreach (var item in Model.Item2)
     {
        <li>
-         @Html.ActionLink(item.Name,"MyArticlesSortByCategory", new{ id=item.Id})
+         @Html.ActionLink(item.Name,"MyArticlesSortByCategory", new{ id=item.Id, config = Model.Item1 })
     </li>
     }   
 </ul>
@@ -45,20 +45,6 @@
 <input type="hidden" name="PageSize" value=@Model.Item1.PageSize/>
 <input type="hidden" name="CurrentPage" value=@Model.Item1.CurrentPage/>
 <input class="btn btn-success" type="submit" value="Фильтр по дате"/>
-</form>
-<form enctype="multipart/form-data" asp-action="MyArticlesSortByTags" asp-controller="Admin"  method="post">
- <input type="hidden" name="PageSize" value=@Model.Item1.PageSize/>
-<input type="hidden" name="CurrentPage" value=@Model.Item1.CurrentPage/>
-<label>Доступные Теги</label>
-    <ul>
-    @foreach (var item in ViewBag.Tags)
-    {
-       <li>
-     <label>@item.Name</label><input type ="checkbox" name="Tags" value="@item.Id"/>
-    </li>
-    }   
-</ul>
-<input class="btn btn-success" type="submit" value="Фильтр по тегам"/>
 </form>
 <input class="btn btn-warning" type="button" value="Сброс Фильтров" onclick="@("window.location.href='" + @Url.Action("MyArticles", "Admin") + "'");"/>
 <br />

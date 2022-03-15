@@ -1,4 +1,5 @@
 ﻿using TEST.Data.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace TEST.Services
 {
@@ -23,15 +24,24 @@ namespace TEST.Services
                     {
                         await file.CopyToAsync(fileStream);
                     }
-                    var item = new Data.Entities.HeroImage()
+                    if (article.HeroImageId != default)
                     {
-                        ArticleId = article.Id,
-                        Name = file.FileName,
-                        Path = "\\MyResFiles\\"+file.FileName,
-                    };
-                    dbContex.HeroImage.Add(item);
+                        var item = await dbContex.HeroImage.FindAsync(article.HeroImageId);
+                        item.Name = file.FileName;
+                        item.Path = "\\MyResFiles\\" + file.FileName;
+                    }
+                    else
+                    {
+                        var item = new Data.Entities.HeroImage()
+                        {
+                            ArticleId = article.Id,
+                            Name = file.FileName,
+                            Path = "\\MyResFiles\\" + file.FileName,
+                        };
+                        dbContex.HeroImage.Add(item);                   
                     article.HeroImageId = item.Id;
                     dbContex.Articles.Update(article);
+                }
                     await dbContex.SaveChangesAsync();
                 }
             }

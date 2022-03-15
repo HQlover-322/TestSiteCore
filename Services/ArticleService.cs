@@ -47,7 +47,10 @@ namespace TEST.Services
         }
         public async Task<ArticleViewModel> GetArticleById(Guid id)
         {
-            var article = await dbContex.Articles.Include(x => x.Tags).FirstOrDefaultAsync(x => x.Id == id);
+            var article = await dbContex.Articles
+                .Include(x => x.Tags)
+                .Include(x=>x.HeroImage)
+                .FirstOrDefaultAsync(x => x.Id == id);
             return new ArticleViewModel()
             {
                 Id = article.Id,
@@ -55,14 +58,17 @@ namespace TEST.Services
                 ShortDescription = article.ShortDescription,
                 Description = article.Description,
                 CategoryId = article.CategoryId,
+                HeroImagePath = article.HeroImage?.Path,
                 CreatedAt = article.CreatedAt,
                 Tags = article.Tags.Select(x => new TagViewModel() { Id = x.Id, Name = x.Name }).ToList(),
                 UpdatedAt = article.UpdatedAt
             };
         }
-        public async Task UpdateArticle(ArticleViewModel data, Guid[] Tags)
+        public async Task<Article> UpdateArticle(ArticleViewModel data, Guid[] Tags)
         {
-            var item = await dbContex.Articles.Include(x => x.Tags).FirstOrDefaultAsync(x => x.Id == data.Id);
+            var item = await dbContex.Articles
+                .Include(x => x.Tags)
+                .FirstOrDefaultAsync(x => x.Id == data.Id);
             if (item is not null)
             {
                 var tags = dbContex.Tags.Where(x => Tags.Contains(x.Id));
@@ -82,10 +88,16 @@ namespace TEST.Services
 
             dbContex.Update(item);
             dbContex.SaveChanges();
+            return item;
         }
-        public async Task<List<ArticleViewModel>> GetNewArticleByPredicate(Expression<Func<Article, bool>> expression)
+        public async Task<List<ArticleViewModel>> GetNewArticleByPredicate(Expression<Func<Article, bool>> expression, PageConfig config)
         {
-            var tasks = await dbContex.Articles.AsNoTracking().Where(expression).ToListAsync();
+            var tasks = await dbContex.Articles
+                .Include(x=>x.HeroImage)
+                .Where(expression)
+                .Skip((config.CurrentPage - 1) * config.PageSize)
+                .Take(config.PageSize)
+                .ToListAsync();
             return tasks.Select(x => new ArticleViewModel()
             {
                 Id = x.Id,
@@ -94,6 +106,7 @@ namespace TEST.Services
                 Description = x.Description,
                 CategoryId = x.CategoryId,
                 CreatedAt = x.CreatedAt,
+                HeroImagePath = x.HeroImage?.Path,
                 UpdatedAt = x.UpdatedAt
             }).ToList();
         }
@@ -105,6 +118,25 @@ namespace TEST.Services
                 dbContex.Remove(item);
                 dbContex.SaveChanges();
             }
+        }
+        public async Task<int> GetCount()
+        {
+                return await dbContex.Articles.CountAsync();
+        }
+        public async  Task<List<ArticleViewModel>> GetArticles(PageConfig config)
+        {
+            var articles = await dbContex.Articles.Skip((config.CurrentPage - 1) * config.PageSize).Take(config.PageSize).Include(x => x.HeroImage).ToListAsync();
+            return articles.Select(x => new ArticleViewModel()
+            {
+                Id = x.Id,
+                Name = x.Name,
+                ShortDescription = x.ShortDescription,
+                Description = x.Description,
+                CategoryId = x.CategoryId,
+                CreatedAt = x.CreatedAt,
+                UpdatedAt = x.UpdatedAt,
+                HeroImagePath = x.HeroImage?.Path
+            }).ToList();
         }
     }
 }

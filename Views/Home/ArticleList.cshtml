@@ -1,16 +1,36 @@
 ﻿
 @{
-    Layout = null;
+
 }
-@model List<ArticleViewModel>;
+@model PageViewModel<ArticleViewModel>;
 
 <form enctype="multipart/form-data" asp-action="ArticleDetails" asp-controller="Home"  method="post">
 <ul>
-    @foreach (var item in Model)
+    @foreach (var item in Model.Items)
     {
         <li>
-        @Html.ActionLink(item.Name,"ArticleDetails", new{ id=item.Id});
+        @Html.ActionLink(item.Name,"ArticleDetails", new{ id=item.Id})
+        <label>"@item.ShortDescription"</label>
+        <img src="@item.HeroImagePath" class="img-thumbnail" height=375 width=375/>
     </li>
     }
 </ul>
+@if (Model.HasPreviousPage)
+{
+    <a asp-action="ArticleList"
+       asp-route-CurrentPage="@(Model.CurrentPage - 1)"
+       class="btn btn-outline-dark">
+        <i class="glyphicon glyphicon-chevron-left"></i>
+        Назад
+    </a>
+}
+@if (Model.HasNextPage)
+{
+    <a asp-action="ArticleList"
+       asp-route-CurrentPage="@(Model.CurrentPage + 1)"
+       class="btn btn-outline-dark">
+        Вперед
+        <i class="glyphicon glyphicon-chevron-right"></i>
+    </a>
+}
 </form>

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TEST.Data.Entities;
+using TEST.Middlewares;
 using TEST.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -34,6 +35,7 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<ExeptionMiddleware>();
 
 app.MapControllerRoute(
     name: "default",

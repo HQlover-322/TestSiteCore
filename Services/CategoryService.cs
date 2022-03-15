@@ -24,6 +24,22 @@ namespace TEST.Services
                 UpdatedAt = x.UpdatedAt
             }).ToList();
         }
+        public async Task<List<CategoryViewModel>> GetCategores(PageConfig config)
+        {
+            var categories = await dbContex.Categories
+                .Skip((config.CurrentPage - 1) * config.PageSize)
+                .Take(config.PageSize)
+                .AsNoTracking()
+                .ToListAsync();
+            return categories.Select(x => new CategoryViewModel()
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Description = x.Description,
+                CreatedAt = x.CreatedAt,
+                UpdatedAt = x.UpdatedAt
+            }).ToList();
+        }
         public async Task AddNewCategory(CategoryViewModel data)
         {
             using(dbContex)
@@ -51,7 +67,9 @@ namespace TEST.Services
         }
         public async Task<CategoryViewModel> GetCategoryById(Guid id)
         {
-            var category = await dbContex.Categories.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+            var category = await dbContex.Categories
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == id);
             return new CategoryViewModel()
             {
                 Id = category.Id,
@@ -69,6 +87,10 @@ namespace TEST.Services
                 dbContex.Remove(item);
                 dbContex.SaveChanges();
             }
+        }
+        public async Task<int> GetCount()
+        {
+            return await dbContex.Categories.CountAsync();
         }
     }
 }

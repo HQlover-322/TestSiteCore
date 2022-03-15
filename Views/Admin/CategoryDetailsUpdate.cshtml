@@ -1,12 +1,12 @@
 ﻿@{
-    Layout = null;
+
 }
 @model CategoryViewModel
 
 <form enctype="multipart/form-data" asp-action="CategoryUpdate" asp-controller="Admin"  method="post">
-<input name ="Name" type="text" value="@Model.Name" />
-<textarea name="Description" cols="40" rows="5">@Model.Description</textarea>
-<input type="text" name="Id" value="@Model.Id"/>
-<input type="submit" value="Обновить"/>
+<input class="form-control" name ="Name" type="text" value="@Model.Name" required/>
+<textarea class="md-textarea form-control" name="Description" cols="40" rows="5">@Model.Description</textarea>
+<input type="hidden" name="Id" value="@Model.Id"/>
+<input class="btn btn-success" type="submit" value="Обновить"/>
 </form>
-@Html.ActionLink("Delete Category","MyCategoryRemove", new{ id=Model.Id})
+@Html.ActionLink("Delete Category","MyCategoryRemove", new{ id=Model.Id}, new {@class="btn btn-danger"})

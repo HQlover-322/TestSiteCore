@@ -1,16 +1,22 @@
 ﻿@{
-    Layout = null;
+   
 }
 @model ArticleViewModel
 
 <form enctype="multipart/form-data" asp-action="MyArticlesUpdate" asp-controller="Admin"  method="post">
-<input name ="Name" type="text" value="@Model.Name" />
-<input name="ShortDescription" type="text" value="@Model.ShortDescription" />
-<textarea name="Description" cols="40" rows="5">@Model.Description</textarea>
+<input class="form-control" name ="Name" type="text" value="@Model.Name"  required/>
+<input class="form-control" name="ShortDescription" type="text" value="@Model.ShortDescription" />
+<textarea class="md-textarea form-control" name="Description" cols="40" rows="5" required>@Model.Description</textarea>
 <input type="hidden" name="Id" value="@Model.Id"/>
-<input type="submit" value="Обновить"  />
+<label>Загрузить новое изображение</label>
+<input class="form-control" type="file" name="HeroImage" />
+<label>Текущее изображение</label>
+ <img   src="@Model.HeroImagePath" class="img-thumbnail" height=375 width=375/>
+ <br />
+ <input class="btn btn-success" type="submit" value="Обновить статью"  />
 <br />
-<select name="CategoryId">
+<label>Категория</label>
+<select class="form-select" name="CategoryId">
    @foreach(var item in ViewBag.Categores)
          {  
             @:<option value = "@item.Id" @((item.Id==Model.CategoryId)? "selected":"") >
@@ -19,7 +25,8 @@
         }
     </select>
     <br />
-    <ul>
+    <label>Теги:</label>
+ <ul>
 @foreach (var tag in ViewBag.Tags)
 {
 <li>
@@ -28,4 +35,4 @@
 }
 </ul>
 </form>
-@Html.ActionLink("Delete Article","MyArticleRemove", new{ id=Model.Id})
+@Html.ActionLink("Delete Article","MyArticleRemove", new{ id=Model.Id},new {@class="btn btn-danger"})

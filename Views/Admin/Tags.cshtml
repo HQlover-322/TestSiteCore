@@ -1,18 +1,21 @@
 ﻿
 @{
+   
 }
-@model PageViewModel<CategoryViewModel>
+@model PageViewModel<TagViewModel>
 <ul>
     @foreach (var item in Model.Items)
     {
        <li>
-         @Html.ActionLink(item.Name,"CategoryDetailsUpdate", new{ id=item.Id})
+           <label>@item.Name</label>
+         @Html.ActionLink("Delete","TagRemove", new{ id=item.Id},new {@class="btn btn-danger"})
     </li>
     }   
 </ul>
+
 @if (Model.HasPreviousPage)
 {
-    <a asp-action="Category"
+    <a asp-action="Tags"
        asp-route-CurrentPage="@(Model.CurrentPage - 1)"
        class="btn btn-outline-dark">
         <i class="glyphicon glyphicon-chevron-left"></i>
@@ -21,7 +24,7 @@
 }
 @if (Model.HasNextPage)
 {
-    <a asp-action="Category"
+    <a asp-action="Tags"
        asp-route-CurrentPage="@(Model.CurrentPage + 1)"
        class="btn btn-outline-dark">
         Вперед
@@ -29,4 +32,4 @@
     </a>
 }
 <br />
-<input class="btn btn-primary" type="button" value="Добавить новую категорию" onclick="@("window.location.href='" + @Url.Action("AddNewCategory", "Admin") + "'");"/>
+<input class="btn btn-primary" type="button" value="Добавить новый тег" onclick="@("window.location.href='" + @Url.Action("AddNewTag", "Admin") + "'");"/>
